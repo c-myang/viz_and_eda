@@ -193,10 +193,6 @@ weather_df %>%
   geom_histogram()
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-    ## Warning: Removed 15 rows containing non-finite values (stat_bin).
-
 ![](viz_i_files/figure-gfm/hist-1.png)<!-- -->
 
 Can we add colour…
@@ -206,10 +202,6 @@ weather_df %>%
   ggplot(aes(x = tmin, color = name)) + 
   geom_histogram()
 ```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-    ## Warning: Removed 15 rows containing non-finite values (stat_bin).
 
 ![](viz_i_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
@@ -221,8 +213,10 @@ weather_df %>%
   geom_histogram(position = "dodge") #use dodge
 ```
 
-![](viz_i_files/figure-gfm/unnamed-chunk-6-1.png)<!-- --> Usually, we
-avoid putting multiple variables in the same plot. Better using facet.
+![](viz_i_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Usually, we avoid putting multiple variables in the same plot. Better
+using facet.
 
 ``` r
 weather_df %>% 
@@ -284,8 +278,6 @@ weather_df %>%
   geom_density_ridges()
 ```
 
-    ## Picking joint bandwidth of 1.67
-
 ![](viz_i_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ## Save and embed
@@ -310,6 +302,10 @@ What about embedding… We can play with the code chunk options.
 weather_plot
 ```
 
-    ## Warning: Removed 15 rows containing missing values (geom_point).
-
 ![](viz_i_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+weather_plot
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

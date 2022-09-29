@@ -132,14 +132,14 @@ weather_df %>%
 
 Histograms are great!!
 
-```{r hist}
+```{r hist, warning=FALSE, message=FALSE}
 weather_df %>% 
   ggplot(aes(x = tmin)) + 
   geom_histogram()
 ```
 
 Can we add colour...
-```{r}
+```{r, warning=FALSE, message=FALSE}
 weather_df %>% 
   ggplot(aes(x = tmin, color = name)) + 
   geom_histogram()
@@ -152,6 +152,7 @@ weather_df %>%
   ggplot(aes(x = tmin, fill = name)) + #Use fill instead of color
   geom_histogram(position = "dodge") #use dodge
 ```
+
 Usually, we avoid putting multiple variables in the same plot. Better using facet.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -194,7 +195,7 @@ weather_df %>%
 
 Ridge plots -- the most popular plot of 2017 (must load `ggridges` package). Very viable for categorical variables with MANY levels (compared to a box plot or violin plot). 
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message = FALSE}
 weather_df %>% 
   ggplot(aes(x = tmin, y = name)) + 
   geom_density_ridges()
@@ -216,7 +217,12 @@ ggsave("./results/weather_plot.pdf", weather_plot, width = 8, height = 5)
 What about embedding...
 We can play with the code chunk options.
 
-```{r, fig.width = 12, fig.height = 6}
+```{r, warning = FALSE, fig.width = 6, fig.height = 3}
+weather_plot
+```
+
+
+```{r, warning = FALSE, fig.width = 12, fig.height = 6}
 weather_plot
 ```
 
