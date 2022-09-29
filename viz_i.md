@@ -287,3 +287,29 @@ weather_df %>%
     ## Picking joint bandwidth of 1.67
 
 ![](viz_i_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+## Save and embed
+
+Let’s save a scatterplot. We should define an object for the plot. If
+you have a lot of plots, maybe save them in a `results` folder.
+
+``` r
+weather_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.3)
+
+ggsave("./results/weather_plot.pdf", weather_plot, width = 8, height = 5)
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+What about embedding… We can play with the code chunk options.
+
+``` r
+weather_plot
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_i_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
