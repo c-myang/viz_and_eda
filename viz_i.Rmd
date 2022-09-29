@@ -1,0 +1,11 @@
+---
+title: "Visualization I"
+output: github_document
+date: "2022-09-29"
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(ggridges)
+```
+
