@@ -1,5 +1,6 @@
 ---
-title: "Visualization I"
+title: "Visualization"
+subtitle: "Part I"
 output: github_document
 date: "2022-09-29"
 ---
@@ -7,5 +8,101 @@ date: "2022-09-29"
 ```{r setup, include = FALSE}
 library(tidyverse)
 library(ggridges)
+```
+
+## Load the weather data
+
+```{r, warning=FALSE, message=FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+
+weather_df
+```
+
+## Scatterplots!!
+
+Create my first scatterplot ever. 
+We first specify the data, then the aesthetic mappings. 
+
+```{r scatterplot}
+ggplot(weather_df, aes(x = tmin, y = tmax)) + #ggplot sets up axis ranges based on aes()
+  geom_point()
+```
+
+New approach (using pipes), same plot. Using pipes, we can mutate, filter, select, before making our plot.
+
+```{r pipeplot}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point()
+```
+
+Save and edit plot object (Less common workflow). You can create a ggplot object, and then add `geom` functions, print or save later, etc.
+
+```{r plotobject}
+weather_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax))
+
+weather_plot + geom_point()
+```
+
+## Advanced scatterplot...
+
+Start with the same one and make it fancy! We are going to assign the `color` of the points to the `name` of the weather station using `aes`. We will also add another geometry, `geom_smooth`. 
+
+```{r advanced}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+What about the `aes` placement? When we move aesthetics inside specific geometries, the color applies only to the scatterplot, not the smooth line plot! If you put aesthetics in ggplot, it is applied universally.
+
+```{r aes, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name)) + # Move color aes into the specific geometry (points)
+  geom_smooth()
+```
+
+Let's facet some things!! (And adjust transparency)
+
+```{r facet, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_point(alpha = 0.5, size = 0.3) + #Apply 50% transparency to geom_point
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ name) # "Nothing" defines rows (don't make rows), name defines columns
+
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, alpha = tmin, color = name)) + #Apply transparency according to tmin
+  geom_point(size = 0.3) + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ name) # "Nothing" defines rows (don't make rows), name defines columns
+```
+
+Let's combine some elements and try a new plot.
+
+```{r, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(aes(size = prcp), alpha = 0.5) + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ name)
 ```
 
