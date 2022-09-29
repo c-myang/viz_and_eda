@@ -127,8 +127,6 @@ weather_df %>%
   facet_grid(. ~ name) # "Nothing" defines rows (don't make rows), name defines columns
 ```
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
 ![](viz_i_files/figure-gfm/facet-1.png)<!-- -->
 
 ``` r
@@ -138,8 +136,6 @@ weather_df %>%
   geom_smooth(se = FALSE) + 
   facet_grid(. ~ name) # "Nothing" defines rows (don't make rows), name defines columns
 ```
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
 ![](viz_i_files/figure-gfm/facet-2.png)<!-- -->
 
@@ -153,6 +149,141 @@ weather_df %>%
   facet_grid(. ~ name)
 ```
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
 ![](viz_i_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+## Some small notes
+
+How many geoms have to exist?
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_smooth(se = FALSE)
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+For scatterplots, you can use a neat geom! First, install the `hexbin`
+package.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_density2d() + 
+  geom_point(alpha = 0.3)
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+## Univariate plots
+
+Histograms are great!!
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin)) + 
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 15 rows containing non-finite values (stat_bin).
+
+![](viz_i_files/figure-gfm/hist-1.png)<!-- -->
+
+Can we add colour…
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, color = name)) + 
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 15 rows containing non-finite values (stat_bin).
+
+![](viz_i_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+It sort of works…location looks funny and only the outline is coloured.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + #Use fill instead of color
+  geom_histogram(position = "dodge") #use dodge
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-6-1.png)<!-- --> Usually, we
+avoid putting multiple variables in the same plot. Better using facet.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_histogram() + 
+  facet_grid(. ~ name)
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+If we want to compare distributions across levels, maybe avoid using a
+histogram…
+
+## Density
+
+Let’s try a new geometry! Density plots!
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_density(alpha = 0.3, adjust = .5) #Adjust gives you more bumpy data
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Box plots
+
+What about box plots??
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin)) + 
+  geom_boxplot()
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## Trendy plots :-)
+
+Violin plots are like a cross between a box plot and density plot. Might
+be more informative as a box plot.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_violin(alpha = 0.4) + 
+  stat_summary(fun = "median")
+```
+
+![](viz_i_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+Ridge plots – the most popular plot of 2017 (must load `ggridges`
+package). Very viable for categorical variables with MANY levels
+(compared to a box plot or violin plot).
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = name)) + 
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 1.67
+
+![](viz_i_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->

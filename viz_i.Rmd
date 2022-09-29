@@ -82,7 +82,7 @@ weather_df %>%
 
 Let's facet some things!! (And adjust transparency)
 
-```{r facet, warning = FALSE}
+```{r facet, warning = FALSE, message=FALSE}
 weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) + 
   geom_point(alpha = 0.5, size = 0.3) + #Apply 50% transparency to geom_point
@@ -98,11 +98,106 @@ weather_df %>%
 
 Let's combine some elements and try a new plot.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, message=FALSE}
 weather_df %>% 
   ggplot(aes(x = date, y = tmax, color = name)) + 
   geom_point(aes(size = prcp), alpha = 0.5) + 
   geom_smooth(se = FALSE) + 
   facet_grid(. ~ name)
 ```
+
+## Some small notes
+
+How many geoms have to exist?
+```{r, warning=FALSE, message=FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_smooth(se = FALSE)
+```
+
+For scatterplots, you can use a neat geom! First, install the `hexbin` package.
+
+```{r, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_density2d() + 
+  geom_point(alpha = 0.3)
+```
+
+## Univariate plots
+
+Histograms are great!!
+
+```{r hist}
+weather_df %>% 
+  ggplot(aes(x = tmin)) + 
+  geom_histogram()
+```
+
+Can we add colour...
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, color = name)) + 
+  geom_histogram()
+```
+
+It sort of works...location looks funny and only the outline is coloured.
+
+```{r, warning=FALSE, message=FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + #Use fill instead of color
+  geom_histogram(position = "dodge") #use dodge
+```
+Usually, we avoid putting multiple variables in the same plot. Better using facet.
+
+```{r, message=FALSE, warning=FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_histogram() + 
+  facet_grid(. ~ name)
+```
+
+If we want to compare distributions across levels, maybe avoid using a histogram...
+
+## Density
+
+Let's try a new geometry! Density plots!
+
+```{r, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_density(alpha = 0.3, adjust = .5) #Adjust gives you more bumpy data
+```
+
+## Box plots
+What about box plots??
+```{r, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin)) + 
+  geom_boxplot()
+```
+
+## Trendy plots :-)
+
+Violin plots are like a cross between a box plot and density plot. Might be more informative as a box plot.
+
+```{r, warning = FALSE}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_violin(alpha = 0.4) + 
+  stat_summary(fun = "median")
+```
+
+Ridge plots -- the most popular plot of 2017 (must load `ggridges` package). Very viable for categorical variables with MANY levels (compared to a box plot or violin plot). 
+
+```{r, warning=FALSE}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = name)) + 
+  geom_density_ridges()
+```
+
 
