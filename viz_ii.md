@@ -68,3 +68,70 @@ weather_df %>%
 ```
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+## Scales
+
+You can adjust the scales and add labels to the scales. We can also
+transform the scales using `trans()` (e.g. square root, etc.)
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) +
+  labs(
+    x = "Minimum Daily Temp (C)",
+    y = "Maximum Daily Temp (C)",
+    title = "Scatterplot of daily temp extremes",
+    caption = "Data come from the rnoaa package",
+    color = "Location"
+  ) +
+  scale_x_continuous(breaks = c(-10, 0, 15),
+                     labels = c("-10C", "0", "15C")) +
+  scale_y_continuous(
+    trans = "sqrt"
+  )
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Colours
+
+We can manually adjust colours using `scale_colour_hue()`, or use the
+`viridis` package
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) +
+  labs(
+    x = "Minimum Daily Temp (C)",
+    y = "Maximum Daily Temp (C)",
+    title = "Scatterplot of daily temp extremes",
+    caption = "Data come from the rnoaa package",
+    color = "Location"
+  ) +
+  scale_colour_hue(
+    name = "Location",
+    h = c(100, 300))
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) +
+  labs(
+    x = "Minimum Daily Temp (C)",
+    y = "Maximum Daily Temp (C)",
+    title = "Scatterplot of daily temp extremes",
+    caption = "Data come from the rnoaa package",
+    color = "Location"
+  ) +
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE #Makes it a discrete rather than continuous colour palette
+  )
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
