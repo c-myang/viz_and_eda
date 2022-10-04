@@ -187,3 +187,63 @@ ggp_weather +
 
 You can set global options to control all ggplots you make in a R
 markdown. (see P8105 website)
+
+## Data argument in `geom_()`
+
+We want to use different geometries for Central Park and Waikiki data.
+
+``` r
+central_park_df = 
+  weather_df %>% 
+  filter(name == "CentralPark_NY")
+
+waikiki_df = 
+  weather_df %>% 
+  filter(name == "Waikiki_HA")
+
+ggplot(waikiki_df, aes(x = date, y = tmax, color = name)) +
+  geom_point() + 
+  geom_line(data = central_park_df)
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## Patchwork…
+
+We want to make a panel of plots with the same dataset (same aesthetic
+mappings, etc.) easily using `facet`. However, we might want to have a
+panel of fundamentally different figures using `patchwork`.
+
+``` r
+tmax_tmin_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, colour = name)) +
+  geom_point(alpha = .5) +
+  theme(legend.position = "none")
+
+prcp_density_plot = 
+  weather_df %>% 
+  filter(prcp > 0) %>% 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = 0.5) + 
+  theme(legend.position = "none")
+
+seasonality_plot = 
+  weather_df %>% 
+  ggplot(aes(x = date, y = tmax, colour = name)) + 
+  geom_point(alpha = .5) + 
+  geom_smooth(se = FALSE)
+  theme(legend.position = "none")
+```
+
+    ## List of 1
+    ##  $ legend.position: chr "none"
+    ##  - attr(*, "class")= chr [1:2] "theme" "gg"
+    ##  - attr(*, "complete")= logi FALSE
+    ##  - attr(*, "validate")= logi TRUE
+
+``` r
+(tmax_tmin_plot + prcp_density_plot)/ seasonality_plot # This requires loading the patchwork library!
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
