@@ -9,6 +9,7 @@ date: "2022-10-04"
 library(tidyverse)
 library(ggridges)
 library(patchwork)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 ## Load the weather data
@@ -32,4 +33,29 @@ weather_df =
 
 weather_df
 ```
+As a starting point, let’s revisit the scatterplot of `tmax` against `tmin` made in Visualization Pt 1.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5)
+```
+
+## Labels
+
+We can add labels using the `labs()` function. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) +
+  labs(
+    x = "Minimum Daily Temp (C)",
+    y = "Maximum Daily Temp (C)",
+    title = "Scatterplot of daily temp extremes",
+    caption = "Data come from the rnoaa package",
+    color = "Location"
+  )
+```
+
 

@@ -38,3 +38,33 @@ weather_df
     ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9
     ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6  
     ## # … with 1,085 more rows
+
+As a starting point, let’s revisit the scatterplot of `tmax` against
+`tmin` made in Visualization Pt 1.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5)
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+## Labels
+
+We can add labels using the `labs()` function.
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) +
+  labs(
+    x = "Minimum Daily Temp (C)",
+    y = "Maximum Daily Temp (C)",
+    title = "Scatterplot of daily temp extremes",
+    caption = "Data come from the rnoaa package",
+    color = "Location"
+  )
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
