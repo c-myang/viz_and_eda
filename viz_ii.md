@@ -97,7 +97,8 @@ weather_df %>%
 ## Colours
 
 We can manually adjust colours using `scale_colour_hue()`, or use the
-`viridis` package
+`viridis` package. In general, encourage using the viridis colour
+palette.
 
 ``` r
 weather_df %>% 
@@ -135,3 +136,54 @@ weather_df %>%
 ```
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+## Themes
+
+``` r
+ggp_weather = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    caption = "Data from the rnoaa package"
+  ) + 
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE
+  )
+
+ggp_weather
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Move the legend to the bottom of the plot. We can get adjust the grey
+background, grid bars, etc.
+
+``` r
+ggp_weather + 
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Make sure your theme functions in the correct order! Applying an overall
+theme overrides individual adjustments to the plot element. Here, we can
+see the legend is no longer at the bottom.
+
+``` r
+ggp_weather + 
+  theme(legend.position = "bottom") +
+  theme_minimal()
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Setting options
+
+You can set global options to control all ggplots you make in a R
+markdown. (see P8105 website)
