@@ -247,3 +247,75 @@ seasonality_plot =
 ```
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+## Data manipulation
+
+Working with factor variables. In the weather dataframe, the name is not
+a factor variable, but when we make a plot, R treats `name` as a factor
+variable. We can be more explicit about the levels of the factor
+variable using `mutate()` and `fct_relevel`.
+
+Note: `fct_*` functions come from the `forcats` package.
+
+``` r
+weather_df %>% 
+  mutate(fct_relevel(name, "Waikiki_HA")) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_boxplot()
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+You can also use `fct_reorder`. We want to reorder the names based on
+the median `tmax` values in ascending order.
+
+``` r
+weather_df %>% 
+  mutate(name = fct_reorder(name, tmax)) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_boxplot()
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Sometimes, making figures involves re-structuring the data. What if we
+want bdi score on the y-axis and visit number on the x-axis?
+
+``` r
+pulse_df = 
+  haven::read_sas("data/public_pulse_data.sas7bdat") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m, 
+    names_to = "visit", 
+    values_to = "bdi",
+    names_prefix = "bdi_score_"
+  ) %>% 
+  select(id, visit, everything()) %>% 
+  mutate(visit = fct_relevel(visit, "bl"))
+
+pulse_df
+```
+
+    ## # A tibble: 4,348 × 5
+    ##       id visit   age sex     bdi
+    ##    <dbl> <fct> <dbl> <chr> <dbl>
+    ##  1 10003 bl     48.0 male      7
+    ##  2 10003 01m    48.0 male      1
+    ##  3 10003 06m    48.0 male      2
+    ##  4 10003 12m    48.0 male      0
+    ##  5 10015 bl     72.5 male      6
+    ##  6 10015 01m    72.5 male     NA
+    ##  7 10015 06m    72.5 male     NA
+    ##  8 10015 12m    72.5 male     NA
+    ##  9 10022 bl     58.5 male     14
+    ## 10 10022 01m    58.5 male      3
+    ## # … with 4,338 more rows
+
+``` r
+pulse_df %>% 
+  ggplot(aes(x = visit, y = bdi)) +
+  geom_boxplot()
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

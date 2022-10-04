@@ -205,7 +205,46 @@ seasonality_plot =
 
 ## Data manipulation
 
+Working with factor variables. In the  weather dataframe, the name is not a factor variable, but when we make a plot, R treats `name` as a factor variable. We can be more explicit about the levels of the factor variable using `mutate()` and `fct_relevel`.
 
+Note: `fct_*` functions come from the `forcats` package.
 
+```{r}
+weather_df %>% 
+  mutate(fct_relevel(name, "Waikiki_HA")) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_boxplot()
+```
+
+You can also use `fct_reorder`. We want to reorder the names based on the median `tmax` values in ascending order.
+
+```{r}
+weather_df %>% 
+  mutate(name = fct_reorder(name, tmax)) %>% 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_boxplot()
+```
+
+Sometimes, making figures involves re-structuring the data. What if we want bdi score on the y-axis and visit number on the x-axis?
+
+```{r}
+pulse_df = 
+  haven::read_sas("data/public_pulse_data.sas7bdat") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m, 
+    names_to = "visit", 
+    values_to = "bdi",
+    names_prefix = "bdi_score_"
+  ) %>% 
+  select(id, visit, everything()) %>% 
+  mutate(visit = fct_relevel(visit, "bl"))
+
+pulse_df
+
+pulse_df %>% 
+  ggplot(aes(x = visit, y = bdi)) +
+  geom_boxplot()
+```
 
 
