@@ -169,6 +169,8 @@ weather_df %>%
 
 You can make a "less tidy" dataset. Presenting reader-friendly results for this kind of exploratory analysis often benefits from some un-tidying. For example, the table below shows month-by-month average max temperatures in a more human-readable format.
 
+You can use `knitr::kable` to nicely render your dataframe for R Markdown!
+
 ```{r}
 weather_df %>% 
   group_by(name, month) %>% 
@@ -178,6 +180,7 @@ weather_df %>%
   pivot_wider(
     names_from = name,
     values_from = mean_tmax
-  )
+  ) %>% 
+  knitr::kable(digits = 1)
 ```
 

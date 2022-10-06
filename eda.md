@@ -325,6 +325,9 @@ for this kind of exploratory analysis often benefits from some
 un-tidying. For example, the table below shows month-by-month average
 max temperatures in a more human-readable format.
 
+You can use `knitr::kable` to nicely render your dataframe for R
+Markdown!
+
 ``` r
 weather_df %>% 
   group_by(name, month) %>% 
@@ -334,21 +337,21 @@ weather_df %>%
   pivot_wider(
     names_from = name,
     values_from = mean_tmax
-  )
+  ) %>% 
+  knitr::kable(digits = 1)
 ```
 
-    ## # A tibble: 12 × 4
-    ##    month      CentralPark_NY Waikiki_HA Waterhole_WA
-    ##    <date>              <dbl>      <dbl>        <dbl>
-    ##  1 2017-01-01           5.98       27.8      -1.4   
-    ##  2 2017-02-01           9.28       27.2      -0.0179
-    ##  3 2017-03-01           8.22       29.1       1.67  
-    ##  4 2017-04-01          18.3        29.7       3.87  
-    ##  5 2017-05-01          20.1        30.1      10.1   
-    ##  6 2017-06-01          26.3        31.3      12.9   
-    ##  7 2017-07-01          28.7        31.8      16.3   
-    ##  8 2017-08-01          27.2        32.0      19.6   
-    ##  9 2017-09-01          25.4        31.7      14.2   
-    ## 10 2017-10-01          21.8        30.3       8.31  
-    ## 11 2017-11-01          12.3        28.4       1.38  
-    ## 12 2017-12-01           4.47       26.5       2.21
+| month      | CentralPark_NY | Waikiki_HA | Waterhole_WA |
+|:-----------|---------------:|-----------:|-------------:|
+| 2017-01-01 |            6.0 |       27.8 |         -1.4 |
+| 2017-02-01 |            9.3 |       27.2 |          0.0 |
+| 2017-03-01 |            8.2 |       29.1 |          1.7 |
+| 2017-04-01 |           18.3 |       29.7 |          3.9 |
+| 2017-05-01 |           20.1 |       30.1 |         10.1 |
+| 2017-06-01 |           26.3 |       31.3 |         12.9 |
+| 2017-07-01 |           28.7 |       31.8 |         16.3 |
+| 2017-08-01 |           27.2 |       32.0 |         19.6 |
+| 2017-09-01 |           25.4 |       31.7 |         14.2 |
+| 2017-10-01 |           21.8 |       30.3 |          8.3 |
+| 2017-11-01 |           12.3 |       28.4 |          1.4 |
+| 2017-12-01 |            4.5 |       26.5 |          2.2 |
