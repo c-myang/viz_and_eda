@@ -207,14 +207,37 @@ weather_df %>%
   )) %>% 
   filter(name != "Waikiki_HA") %>% 
   group_by(name, cold) %>% 
-  summarize(count = n())
+  summarize(n_obs = n()) %>% 
+  pivot_wider(names_from = cold, 
+              values_from = n_obs)
 ```
 
-    ## # A tibble: 4 × 3
+    ## # A tibble: 2 × 3
     ## # Groups:   name [2]
-    ##   name           cold     count
-    ##   <chr>          <chr>    <int>
-    ## 1 CentralPark_NY cold        44
-    ## 2 CentralPark_NY not_cold   321
-    ## 3 Waterhole_WA   cold       172
-    ## 4 Waterhole_WA   not_cold   193
+    ##   name            cold not_cold
+    ##   <chr>          <int>    <int>
+    ## 1 CentralPark_NY    44      321
+    ## 2 Waterhole_WA     172      193
+
+This is a “tidy” table, and it’s also a data frame. You could
+re-organize into a more standard (non-tidy) 2x2 table using pivot_wider,
+or you could use `janitor::tabyl:`
+
+``` r
+weather_df %>% 
+  mutate(cold = case_when(
+    tmax <  5 ~ "cold",
+    tmax >= 5 ~ "not_cold",
+    TRUE     ~ ""
+  )) %>% 
+  filter(name != "Waikiki_HA") %>% 
+  janitor::tabyl(name, cold)
+```
+
+    ##            name cold not_cold
+    ##  CentralPark_NY   44      321
+    ##    Waterhole_WA  172      193
+
+`janitor` has a lot of little functions like this that turn out to be
+useful, so when you have some time you might read through all the things
+you can do.
