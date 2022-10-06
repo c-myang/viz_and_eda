@@ -1,13 +1,11 @@
 ---
-title: "EDA"
+title: "Numeric EDA"
 output: github_document
 date: "2022-10-06"
 ---
 
 ```{r setup, include = FALSE}
 library(tidyverse)
-library(ggridges)
-library(patchwork)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -33,3 +31,86 @@ weather_df =
 
 weather_df
 ```
+
+## Using `group_by`
+
+Datasets are often comprised of groups defined by one or more (categorical) variable; `group_by()` makes these groupings explicit so that they can be included in subsequent operations. For example, we might group weather_df by name and month:
+
+```{r}
+weather_df %>%
+  group_by(name, month) # Doesn't change dataset itself, but makes a new layer in the df
+```
+Several important functions respect grouping structures. You will frequently use `summarize` to create one-number summaries within each group, or use `mutate` to define variables within groups. 
+
+Because these (and other) functions will use grouping information if it exists, it is sometimes necessary to remove groups using `ungroup()`.
+
+## `summarize()`
+
+Summarizing gives you group-specific summaries. The `n()` function from `tidyverse` lets you count things in a group.
+
+The result is a dataframe that includes the grouping variable(s) and the desired summary.
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  summarise(
+    n_obs = n()
+  )
+
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    n_obs = n()
+  )
+```
+
+Can we count in other ways?
+
+To count things, you could use `count()` in place of `group_by()` and `summarize()` if you remember that this function exists. 
+
+```{r}
+weather_df %>% 
+  count(name, month)
+```
+
+Don't use `table()`!!
+
+`count()` is a useful tidyverse alternative to Base R’s `table` function. Both functions produce summaries of how often values appear, but `table`’s output is of class table and is hard to do any additional work with, while `count` produces a dataframe you can use or manipulate directly. 
+
+```{r, eval = FALSE}
+weather_df %>%
+  pull(month) %>% 
+  table
+```
+
+You can have multiple summaries. `n_distinct()` counts up the number of distinct observations in a dataset, or for a specific column. As an example, we count the number of observations in each month and the number of distinct values of date in each month.
+
+```{r}
+weather_df %>% 
+  group_by(month) %>% 
+  summarise(
+    n_obs = n(), 
+    n_dist = n_distinct(date)
+  )
+```
+
+## A brief aside on 2x2 Tables
+
+Nothing in our dataset is conducive to a 2x2 structure, but we can try...
+In a contrived example, let’s say you want to look at the number of cold and not-cold days in Central Park and Waterhole. 
+
+```{r}
+weather_df %>% 
+  mutate(
+    cold = case_when(
+      tmax <  5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+  )) %>% 
+  filter(name != "Waikiki_HA") %>% 
+  group_by(name, cold) %>% 
+  summarize(count = n())
+```
+
+
+
