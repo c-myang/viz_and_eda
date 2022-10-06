@@ -355,3 +355,140 @@ weather_df %>%
 | 2017-10-01 |           21.8 |       30.3 |          8.3 |
 | 2017-11-01 |           12.3 |       28.4 |          1.4 |
 | 2017-12-01 |            4.5 |       26.5 |          2.2 |
+
+## Grouped `mutate`
+
+Summarizing collapses groups into single data points. In contrast, using
+`mutate()` in conjuntion with `group_by()` will retain all original data
+points and add new variables computed within groups.
+
+Suppose you want to compare the daily max temperature to the annual
+average max temperature for each station separately, and to plot the
+result. You could do so using:
+
+``` r
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax) %>% 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+![](eda_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Now our tmax is centered around 0.
+
+## Window functions
+
+What if we want lagged observations?
+
+NOTE: We use the `group_by()` structure to prevent yesterday’s tmax
+value to pass on between Central Park and Waikiki
+
+``` r
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    yesterday_tmax = lag(tmax) # By default, lags by 1 day
+  )
+```
+
+    ## # A tibble: 1,095 × 8
+    ## # Groups:   name [3]
+    ##    name           id          date        prcp  tmax  tmin month      yesterda…¹
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>          <dbl>
+    ##  1 CentralPark_NY USW00094728 2017-01-01     0   8.9   4.4 2017-01-01       NA  
+    ##  2 CentralPark_NY USW00094728 2017-01-02    53   5     2.8 2017-01-01        8.9
+    ##  3 CentralPark_NY USW00094728 2017-01-03   147   6.1   3.9 2017-01-01        5  
+    ##  4 CentralPark_NY USW00094728 2017-01-04     0  11.1   1.1 2017-01-01        6.1
+    ##  5 CentralPark_NY USW00094728 2017-01-05     0   1.1  -2.7 2017-01-01       11.1
+    ##  6 CentralPark_NY USW00094728 2017-01-06    13   0.6  -3.8 2017-01-01        1.1
+    ##  7 CentralPark_NY USW00094728 2017-01-07    81  -3.2  -6.6 2017-01-01        0.6
+    ##  8 CentralPark_NY USW00094728 2017-01-08     0  -3.8  -8.8 2017-01-01       -3.2
+    ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9 2017-01-01       -3.8
+    ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6   2017-01-01       -4.9
+    ## # … with 1,085 more rows, and abbreviated variable name ¹​yesterday_tmax
+
+``` r
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    yesterday_tmax = lag(tmax),
+    tmax_change = tmax - yesterday_tmax
+  ) %>% 
+  summarise(
+    sd_tmax_change = sd(tmax_change, na.rm = TRUE)
+  )
+```
+
+    ## # A tibble: 3 × 2
+    ##   name           sd_tmax_change
+    ##   <chr>                   <dbl>
+    ## 1 CentralPark_NY           4.45
+    ## 2 Waikiki_HA               1.23
+    ## 3 Waterhole_WA             3.13
+
+There is a `lead()` function for the other direction. `n` argument gives
+the number of positions to lead or lag by.
+
+1 other window function…
+
+Within each weather station and month, we want to order the tmax from
+coldest to least coldest, using `min_rank`.
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(
+    tmax_rank = min_rank(tmax)
+  )
+```
+
+    ## # A tibble: 1,095 × 8
+    ## # Groups:   name, month [36]
+    ##    name           id          date        prcp  tmax  tmin month      tmax_rank
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>         <int>
+    ##  1 CentralPark_NY USW00094728 2017-01-01     0   8.9   4.4 2017-01-01        22
+    ##  2 CentralPark_NY USW00094728 2017-01-02    53   5     2.8 2017-01-01        12
+    ##  3 CentralPark_NY USW00094728 2017-01-03   147   6.1   3.9 2017-01-01        15
+    ##  4 CentralPark_NY USW00094728 2017-01-04     0  11.1   1.1 2017-01-01        27
+    ##  5 CentralPark_NY USW00094728 2017-01-05     0   1.1  -2.7 2017-01-01         5
+    ##  6 CentralPark_NY USW00094728 2017-01-06    13   0.6  -3.8 2017-01-01         4
+    ##  7 CentralPark_NY USW00094728 2017-01-07    81  -3.2  -6.6 2017-01-01         3
+    ##  8 CentralPark_NY USW00094728 2017-01-08     0  -3.8  -8.8 2017-01-01         2
+    ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9 2017-01-01         1
+    ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6   2017-01-01        21
+    ## # … with 1,085 more rows
+
+``` r
+# If we want the reverse
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(
+    tmax_rank = min_rank(desc(tmax))
+  ) %>% 
+  filter(tmax_rank < 4) %>% 
+  arrange(name, month, tmax_rank)
+```
+
+    ## # A tibble: 149 × 8
+    ## # Groups:   name, month [36]
+    ##    name           id          date        prcp  tmax  tmin month      tmax_rank
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>         <int>
+    ##  1 CentralPark_NY USW00094728 2017-01-12    13  18.9   8.3 2017-01-01         1
+    ##  2 CentralPark_NY USW00094728 2017-01-13     0  16.7   0   2017-01-01         2
+    ##  3 CentralPark_NY USW00094728 2017-01-26     5  13.3   6.1 2017-01-01         3
+    ##  4 CentralPark_NY USW00094728 2017-02-24     0  21.1  14.4 2017-02-01         1
+    ##  5 CentralPark_NY USW00094728 2017-02-19     0  18.3  11.7 2017-02-01         2
+    ##  6 CentralPark_NY USW00094728 2017-02-23     0  18.3   6.7 2017-02-01         2
+    ##  7 CentralPark_NY USW00094728 2017-03-01    30  21.1  12.2 2017-03-01         1
+    ##  8 CentralPark_NY USW00094728 2017-03-02     0  17.8   1.7 2017-03-01         2
+    ##  9 CentralPark_NY USW00094728 2017-03-25     3  16.7   5.6 2017-03-01         3
+    ## 10 CentralPark_NY USW00094728 2017-04-16     0  30.6  15   2017-04-01         1
+    ## # … with 139 more rows
+
+We can see there are ties between ranks with the same tmax values.
+
+See course website for more examples…

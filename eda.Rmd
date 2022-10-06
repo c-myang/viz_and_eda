@@ -184,3 +184,73 @@ weather_df %>%
   knitr::kable(digits = 1)
 ```
 
+## Grouped `mutate`
+Summarizing collapses groups into single data points. In contrast, using `mutate()` in conjuntion with `group_by()` will retain all original data points and add new variables computed within groups.
+
+Suppose you want to compare the daily max temperature to the annual average max temperature for each station separately, and to plot the result. You could do so using:
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax) %>% 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+Now our tmax is centered around 0. 
+
+## Window functions
+
+What if we want lagged observations? 
+
+NOTE: We use the `group_by()` structure to prevent yesterday's tmax value to pass on between Central Park and Waikiki
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    yesterday_tmax = lag(tmax) # By default, lags by 1 day
+  )
+```
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    yesterday_tmax = lag(tmax),
+    tmax_change = tmax - yesterday_tmax
+  ) %>% 
+  summarise(
+    sd_tmax_change = sd(tmax_change, na.rm = TRUE)
+  )
+```
+
+There is a `lead()` function for the other direction. `n` argument gives the number of positions to lead or lag by.
+
+1 other window function...
+
+Within each weather station and month, we want to order the tmax from coldest to least coldest, using `min_rank`. 
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(
+    tmax_rank = min_rank(tmax)
+  )
+
+# If we want the reverse
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(
+    tmax_rank = min_rank(desc(tmax))
+  ) %>% 
+  filter(tmax_rank < 4) %>% 
+  arrange(name, month, tmax_rank)
+```
+
+We can see there are ties between ranks with the same tmax values.
+
+See course website for more examples...
+
