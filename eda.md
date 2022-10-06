@@ -241,3 +241,114 @@ weather_df %>%
 `janitor` has a lot of little functions like this that turn out to be
 useful, so when you have some time you might read through all the things
 you can do.
+
+## General summaries
+
+Standard statistical summaries are regularly computed in `summarize()`
+using functions like `mean()`, `median()`, `var()`, `sd()`, `mad()`,
+`IQR()`, `min()`, and `max()`. To use these, you indicate the variable
+to which they apply and include any additional arguments as necessary.
+
+You may want to compute the mean tmax for each month and location.
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    n_obs = n(), 
+    mean_tmax = mean(tmax, na.rm = TRUE), # Removes missing NA values before computing mean
+    sd_prcp = sd(prcp), 
+    median_tmax = median(tmax, na.rm = TRUE)
+  )
+```
+
+    ## # A tibble: 36 × 6
+    ## # Groups:   name [3]
+    ##    name           month      n_obs mean_tmax sd_prcp median_tmax
+    ##    <chr>          <date>     <int>     <dbl>   <dbl>       <dbl>
+    ##  1 CentralPark_NY 2017-01-01    31      5.98    79.0         6.1
+    ##  2 CentralPark_NY 2017-02-01    28      9.28    63.9         8.3
+    ##  3 CentralPark_NY 2017-03-01    31      8.22   114.          8.3
+    ##  4 CentralPark_NY 2017-04-01    30     18.3     74.7        18.3
+    ##  5 CentralPark_NY 2017-05-01    31     20.1    155.         19.4
+    ##  6 CentralPark_NY 2017-06-01    30     26.3    103.         27.2
+    ##  7 CentralPark_NY 2017-07-01    31     28.7     91.0        29.4
+    ##  8 CentralPark_NY 2017-08-01    31     27.2     56.9        27.2
+    ##  9 CentralPark_NY 2017-09-01    30     25.4     45.4        26.1
+    ## 10 CentralPark_NY 2017-10-01    31     21.8    138.         22.2
+    ## # … with 26 more rows
+
+Compute same summaries across multiple variables. `Across()` lets you
+compute mean from variables from `prcp` column to the `tmin` column.
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(across(prcp:tmin, mean))
+```
+
+    ## # A tibble: 36 × 5
+    ## # Groups:   name [3]
+    ##    name           month       prcp  tmax   tmin
+    ##    <chr>          <date>     <dbl> <dbl>  <dbl>
+    ##  1 CentralPark_NY 2017-01-01  39.5  5.98  0.748
+    ##  2 CentralPark_NY 2017-02-01  22.5  9.28  1.45 
+    ##  3 CentralPark_NY 2017-03-01  43.0  8.22 -0.177
+    ##  4 CentralPark_NY 2017-04-01  32.5 18.3   9.66 
+    ##  5 CentralPark_NY 2017-05-01  52.3 20.1  12.2  
+    ##  6 CentralPark_NY 2017-06-01  40.4 26.3  18.2  
+    ##  7 CentralPark_NY 2017-07-01  34.3 28.7  21.0  
+    ##  8 CentralPark_NY 2017-08-01  27.4 27.2  19.5  
+    ##  9 CentralPark_NY 2017-09-01  17.0 25.4  17.4  
+    ## 10 CentralPark_NY 2017-10-01  34.3 21.8  13.9  
+    ## # … with 26 more rows
+
+This is a dataframe!! You can incorporate grouping and summarizing
+within broader analysis pipelines. For example, we can take create a
+plot based on the monthly summary:
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() + 
+  geom_path()
+```
+
+![](eda_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+You can make a “less tidy” dataset. Presenting reader-friendly results
+for this kind of exploratory analysis often benefits from some
+un-tidying. For example, the table below shows month-by-month average
+max temperatures in a more human-readable format.
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  )
+```
+
+    ## # A tibble: 12 × 4
+    ##    month      CentralPark_NY Waikiki_HA Waterhole_WA
+    ##    <date>              <dbl>      <dbl>        <dbl>
+    ##  1 2017-01-01           5.98       27.8      -1.4   
+    ##  2 2017-02-01           9.28       27.2      -0.0179
+    ##  3 2017-03-01           8.22       29.1       1.67  
+    ##  4 2017-04-01          18.3        29.7       3.87  
+    ##  5 2017-05-01          20.1        30.1      10.1   
+    ##  6 2017-06-01          26.3        31.3      12.9   
+    ##  7 2017-07-01          28.7        31.8      16.3   
+    ##  8 2017-08-01          27.2        32.0      19.6   
+    ##  9 2017-09-01          25.4        31.7      14.2   
+    ## 10 2017-10-01          21.8        30.3       8.31  
+    ## 11 2017-11-01          12.3        28.4       1.38  
+    ## 12 2017-12-01           4.47       26.5       2.21

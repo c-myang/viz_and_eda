@@ -129,4 +129,55 @@ weather_df %>%
 
 `janitor` has a lot of little functions like this that turn out to be useful, so when you have some time you might read through all the things you can do. 
 
+## General summaries
+
+Standard statistical summaries are regularly computed in `summarize()` using functions like `mean()`, `median()`, `var()`, `sd()`, `mad()`, `IQR()`, `min()`, and `max()`. To use these, you indicate the variable to which they apply and include any additional arguments as necessary.
+
+You may want to compute the mean tmax for each month and location.
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    n_obs = n(), 
+    mean_tmax = mean(tmax, na.rm = TRUE), # Removes missing NA values before computing mean
+    sd_prcp = sd(prcp), 
+    median_tmax = median(tmax, na.rm = TRUE)
+  )
+```
+
+Compute same summaries across multiple variables. `Across()` lets you compute mean from variables from `prcp` column to the `tmin` column.
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(across(prcp:tmin, mean))
+```
+
+This is a dataframe!! You can incorporate grouping and summarizing within broader analysis pipelines. For example, we can take create a plot based on the monthly summary:
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() + 
+  geom_path()
+```
+
+You can make a "less tidy" dataset. Presenting reader-friendly results for this kind of exploratory analysis often benefits from some un-tidying. For example, the table below shows month-by-month average max temperatures in a more human-readable format.
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  )
+```
 
