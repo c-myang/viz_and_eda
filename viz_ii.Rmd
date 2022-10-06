@@ -172,7 +172,6 @@ waikiki_df =
 ggplot(waikiki_df, aes(x = date, y = tmax, color = name)) +
   geom_point() + 
   geom_line(data = central_park_df)
-
 ```
 
 ## Patchwork...

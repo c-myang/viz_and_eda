@@ -4,5 +4,7 @@ This is a repo for the Data Wrangling Module for Data Science I. It contains the
 
 * viz_i.Rmd: Data Visualization I
 * viz_ii.Rmd: Data Visualization II
-* 
+* eda.Rmd: Exploratory Data Analysis
+
+
 
